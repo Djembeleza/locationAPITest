@@ -1,31 +1,42 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
 
+    let map = L.map("map").setView([0,0], 13);
 
-    let map = L.map("map").fitWorld();
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
+    // Marker to represent the device's current position
+    let marker = L.marker([0,0]).addTo(map);
 
-    map.locate({setView: true, maxZoom: 16})
+    let path = L.polyline([], {color: 'blue'}).addTo(map);
 
+    function updateLocation() {
 
-    function onLocationFound(e) {
-        let radius = e.accuracy;
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                let lat = position.coords.latitude;
+                let lng = position.coords.longitude;
 
-        L.marker(e.latlng).addTo(map)
-        .bindPopup(`You are within ${radius} meters from this point`)
-        .openPopup();
+                // Update the marker position
+                marker.setLatLng([lat, lng]);
 
-        L.circle(e.latlng, radius).addTo(map);
+                // Add new position to path
+                path.addLatLng([lat, lng]);
+
+                // Pan and center the map to the current position
+                map.setView([lat, lng], 13);
+            }, (error) => {
+                console.error("Error getting location: ", error.message)
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.")
+        }
+        
     }
 
-    map.on("locationfound", onLocationFound);
 
-
-    map.on("locationerror", (e) => {
-        alert(e.message);
-    })
+    // Update the location every 5 seconds
+    setInterval(updateLocation, 5000)
     
-})
+});
