@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }).addTo(map);
 
     // Marker to represent the device's current position
-    let marker = L.marker([0,0]).addTo(map);
+    let marker = L.marker([0,0], {title: navigator.userAgent, riseOnHover: true}).addTo(map);
 
     let path = L.polyline([], {color: 'blue'}).addTo(map);
 
